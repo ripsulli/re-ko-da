@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>録画 · Recorder</title>
+<title>録画 · re·kō·dā</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@900&family=Source+Serif+4:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
@@ -30,7 +30,7 @@ footer p{margin:0;font-style:italic;font-size:12px;padding:0 16px;text-align:cen
 main{min-height:0;display:grid;padding:0 clamp(12px,3vw,32px)}
 button,select{font:inherit;color:inherit;cursor:pointer}
 
-#studio{width:100%;height:100%;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) min(300px,34vw);grid-template-rows:minmax(0,1fr);gap:12px;padding:6px 0}
+#studio{width:100%;height:100%;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) min(312px,34vw);grid-template-rows:minmax(0,1fr);gap:12px;padding:6px 0}
 .stage{min-height:0;display:grid;grid-template-rows:auto minmax(0,1fr);gap:8px}
 .tb{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
 .tb .fl{flex:1}
@@ -50,14 +50,14 @@ select option{background:var(--ink)}
 canvas{--ar:1.7778;width:min(100cqw,calc(100cqh*var(--ar)));aspect-ratio:var(--ar);height:auto;background:#000;border:1px solid rgba(228,248,247,.3);touch-action:none}
 canvas:fullscreen{width:100vw;height:100vh;aspect-ratio:auto;object-fit:contain;border:0}
 #layers{overflow-y:auto;min-height:0;display:grid;gap:8px;align-content:start;padding-right:2px}
-.card{border:1px solid rgba(228,248,247,.28);background:rgba(9,64,75,.55);padding:8px 10px;display:grid;gap:6px;font-size:12px;cursor:pointer}
-.card.on{border-color:var(--accent)}
+.card{border:1px solid rgba(228,248,247,.28);background:rgba(9,64,75,.55);padding:10px 12px;display:grid;gap:8px;font-size:13px;cursor:pointer}
+.card.on{border:2px solid var(--accent);padding:9px 11px}
 .card.over{outline:2px dashed var(--accent)}
 .hd{display:flex;align-items:center;gap:6px}
-.hd h3{margin:0;font-size:15px}
+.hd h3{margin:0;font-size:18px;font-weight:700}
 .grip{cursor:grab;display:grid;place-items:center;width:18px;height:22px;opacity:.7}
 .ic{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
-.ic button{display:grid;place-items:center;background:transparent;border:1px solid rgba(228,248,247,.4);padding:3px 2px;font-size:12px;min-height:26px}
+.ic button{display:grid;place-items:center;background:transparent;border:1px solid rgba(228,248,247,.5);padding:4px 2px;font-size:14px;min-height:32px}
 .ic button:disabled{opacity:.35;cursor:not-allowed}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px}
 .card label{display:grid;font-size:11px}
@@ -80,9 +80,9 @@ input[type=range]{width:100%;accent-color:var(--accent);margin:2px 0}
   <section id="studio">
     <div class="stage">
       <div class="tb">
-        <span class="brand" lang="ja">録画 <span class="rom">| re · kō · dā .</span></span>
-        <button class="btn" id="aScr">Add screen</button>
-        <button class="btn" id="aCam">Add webcam</button>
+        <button class="btn" id="rb" disabled>Record</button>
+        <span id="tm">00:00</span>
+        <button class="btn" id="sv" hidden>Save</button>
         <span class="sep"></span>
         <button class="btn on" data-mode="move">Move / resize</button>
         <button class="btn" data-mode="crop">Crop</button>
@@ -90,13 +90,9 @@ input[type=range]{width:100%;accent-color:var(--accent);margin:2px 0}
         <button class="btn" id="zo" hidden aria-label="Zoom out">−</button>
         <button class="btn" id="zi" hidden aria-label="Zoom in">+</button>
         <span class="sep"></span>
-        <select id="res" aria-label="Resolution (16:9)"><option value="360">360p</option><option value="480">480p</option><option value="720">720p</option><option value="1080">1080p</option><option value="1440">1440p</option><option value="2160">4K (2160p)</option></select>
-        <span id="px"></span>
+        <button class="btn" id="aCam">Add webcam</button>
+        <button class="btn" id="aScr">Add screen</button>
         <button class="btn" id="fs">Full screen</button>
-        <span class="fl"></span>
-        <span id="tm">00:00</span>
-        <button class="btn" id="sv" hidden>Save</button>
-        <button class="btn" id="rb" disabled>Record</button>
       </div>
       <div class="cvw"><canvas id="cv" width="1920" height="1080" aria-label="Recording preview"></canvas></div>
     </div>
@@ -128,9 +124,8 @@ function setCanvas(q){
   const oldW=W; Q=q; W=Math.round(q*16/9/2)*2; H=q;
   cv.width=W;cv.height=H;
   layers.forEach(L=>{const k=W/oldW;L.x*=k;L.y*=k;L.w*=k;L.h*=k});
-  $('#res').value=Q;$('#px').textContent=`${W}×${H}`;
+  
 }
-$('#res').onchange=e=>setCanvas(+e.target.value);
 
 $('#aCam').onclick=()=>add('cam'); $('#aScr').onclick=()=>add('scr');
 function fs(){
@@ -200,8 +195,8 @@ function render(){
   $('#rb').disabled=!layers.length&&!(rec&&rec.state==='recording');
   $('#layers').innerHTML=layers.length?[...layers].reverse().map(L=>`
   <article class="card ${L===sel?'on':''}" data-id="${L.id}">
-    <div class="hd"><span class="grip" draggable="true" title="Drag to reorder">${ic('grip')}</span><h3>${L.name}${L.lock?' (locked)':''}</h3></div>
-    <div class="ic">${ar('up','up','Bring forward')}${ar('dn','down','Send backward')}${bt('show',L.show?'Hide':'Show')}${bt('mute',L.mute?'Unmute':'Mute',!L.g)}${bt('lock',L.lock?'Unlock':'Lock')}${bt('reset','Reset')}${bt('del','Delete')}</div>
+    <div class="hd"><h3>${L.name}${L.lock?' (locked)':''}</h3></div>
+    <div class="ic">${bt('show',L.show?'Hide':'Show')}${bt('mute',L.mute?'Unmute':'Mute',!L.g)}${bt('up','Raise')}${bt('dn','Lower')}${bt('lock',L.lock?'Unlock':'Lock')}${bt('reset','Reset')}${bt('del','Delete')}</div>
     ${L.g?sl(L,'vol','Volume',0,150,1):'<p class="hint">No audio from this source.</p>'}
     ${L.kind==='cam'?`<div class="grid">${ck(L,'mirror','Mirror')}${ck(L,'retouch','Retouch')}${FILT?sl(L,'smooth','Smooth',0,1,.01)+sl(L,'bright','Brighten',0,1,.01)+sl(L,'warm','Warmth',0,1,.01):''}</div>`:''}
   </article>`).join(''):'<p class="hint">No sources yet. Click the preview or use Add screen / Add webcam.</p>';
@@ -325,13 +320,13 @@ const fmt=s=>String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(
 $('#rb').onclick=()=>{rec&&rec.state==='recording'?rec.stop():start()};
 function start(){
   if(!layers.length||!window.MediaRecorder)return msg('Recording isn’t supported in this browser.');
-  if(outUrl)URL.revokeObjectURL(outUrl); $('#sv').hidden=true; $('#res').disabled=true;
+  if(outUrl)URL.revokeObjectURL(outUrl); $('#sv').hidden=true;
   const mime=['video/mp4;codecs=avc1.640028,mp4a.40.2','video/mp4;codecs=avc1,mp4a.40.2','video/mp4','video/webm;codecs=vp9,opus','video/webm'].find(m=>MediaRecorder.isTypeSupported(m));
   const tracks=[...cv.captureStream(30).getVideoTracks(),...(dst?dst.stream.getAudioTracks():[])];
   chunks=[]; size=0; rec=new MediaRecorder(new MediaStream(tracks),{mimeType:mime,videoBitsPerSecond:Math.round(W*H*30*.13)});
   rec.ondataavailable=e=>{if(e.data.size){chunks.push(e.data);size+=e.data.size}};
   rec.onstop=()=>{
-    clearInterval(tick); $('#rb').textContent='Record'; $('#rb').classList.remove('rec'); $('#res').disabled=false; render();
+    clearInterval(tick); $('#rb').textContent='Record'; $('#rb').classList.remove('rec'); render();
     blob=new Blob(chunks,{type:rec.mimeType||mime}); outUrl=URL.createObjectURL(blob);
     $('#sv').textContent=`Save .${blob.type.includes('mp4')?'mp4':'webm'}`; $('#sv').hidden=false; msg('Recording ready. Press Save to download it.');
   };
