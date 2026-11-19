@@ -9,7 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@900&family=Source+Serif+4:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
 <style>
 :root{
-  --ink:#04262e; --ink2:#09404b; --band:#2b7886; --paper:#e4f8f7; --accent:#7ff0dc; --rec:#ff6b6b;
+  --ink:#04262e; --band:#2b7886; --paper:#e4f8f7; --accent:#7ff0dc; --rec:#ff6b6b;
   --bh:clamp(56px,11vh,120px);
   color-scheme:dark; box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
@@ -17,68 +17,75 @@
 }
 html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
 *,*::before,*::after{box-sizing:inherit}
+[hidden]{display:none!important}
 body{margin:0;height:100%;overflow:hidden;display:grid;grid-template-rows:var(--bh) minmax(0,1fr) var(--bh);
   background:var(--ink);color:var(--paper);font-family:"Source Serif 4",Georgia,serif;
   padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
-body.studio{--bh:clamp(20px,3.5vh,30px)}
-body.studio footer{padding-bottom:3px}
-body.studio footer p{font-size:12px}
+body.studio{--bh:clamp(24px,4vh,34px)}
 body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:100;
   background:repeating-linear-gradient(0deg,rgba(255,255,255,.07) 0 1px,transparent 1px 3px)}
 :focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .band{background:var(--band);margin:0 calc(-1*env(safe-area-inset-left,0px)) 0 calc(-1*env(safe-area-inset-right,0px))}
 footer.band{display:grid;place-items:end center;padding-bottom:clamp(8px,1.6vh,18px)}
+body.studio footer.band{padding-bottom:3px}
 footer p{margin:0;font-style:italic;font-size:clamp(13px,1.9vmin,18px);padding:0 16px;text-align:center}
+body.studio footer p{font-size:12px}
 main{min-height:0;display:grid;place-items:center;padding:0 clamp(12px,3vw,32px)}
 button{font:inherit;color:inherit;cursor:pointer}
 
 /* landing */
-#land{display:flex;flex-direction:column;align-items:center;text-align:center;gap:clamp(6px,1.4vh,16px)}
+#land{display:grid;grid-template-columns:auto auto;align-items:center;justify-content:center;gap:clamp(24px,6vw,88px)}
+.ttl{display:grid;justify-items:center;gap:clamp(4px,1vh,12px);text-align:center}
+.ctl{width:min(44vw,400px);display:flex;flex-direction:column;align-items:center;gap:clamp(8px,1.6vh,16px);text-align:center}
 .ro{margin:0;font-style:italic;letter-spacing:.55em;padding-left:.55em;color:var(--accent);opacity:.9;font-size:clamp(12px,2.2vmin,20px)}
-h1{margin:0;font:900 clamp(76px,22vmin,210px)/1 "Noto Serif JP","Source Serif 4",serif;color:var(--paper)}
-.drop{width:min(92vw,640px);border:2px dashed var(--paper);padding:clamp(12px,2.4vh,26px) 16px;display:grid;gap:6px;justify-items:center}
+h1{margin:0;font:900 clamp(70px,min(24vmin,17vw),220px)/1 "Noto Serif JP","Source Serif 4",serif;color:var(--paper)}
+.drop{width:100%;border:2px dashed var(--paper);padding:clamp(12px,2.4vh,26px) 16px;display:grid;gap:6px;justify-items:center}
 .drop b{font-size:clamp(20px,3.6vmin,34px);font-weight:700}
 .drop span{font-size:clamp(14px,2vmin,18px)}
 .chips{display:flex;gap:10px;margin-top:8px}
 .chip{background:transparent;border:1.5px solid rgba(228,248,247,.6);padding:6px 18px;font-size:clamp(14px,2vmin,18px)}
 .chip[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:var(--ink)}
-.go{margin-top:clamp(2px,1vh,10px);border:0;padding:clamp(8px,1.4vh,14px) clamp(34px,6vw,56px);font-weight:700;font-size:clamp(16px,2.6vmin,24px);
+.go{border:0;padding:clamp(8px,1.4vh,14px) clamp(34px,6vw,56px);font-weight:700;font-size:clamp(16px,2.6vmin,24px);
   letter-spacing:.3em;padding-left:calc(clamp(34px,6vw,56px) + .3em);background:var(--paper);color:var(--ink);transition:background .2s,color .2s}
 .go:disabled{background:rgba(228,248,247,.22);color:rgba(228,248,247,.55);cursor:not-allowed}
 #err{margin:0;min-height:1.3em;font-size:14px;color:var(--rec)}
 
 /* studio */
-#studio{width:100%;height:100%;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) min(340px,36vw);gap:14px;padding:10px 0}
-.stage{min-height:0;display:flex;flex-direction:column;align-items:center;gap:10px}
-.cvw{flex:1;min-height:0;width:100%;display:grid;place-items:center}
-canvas{width:min(100%,calc((100dvh - var(--bh)*2 - 120px)*16/9));aspect-ratio:16/9;height:auto;background:#000;border:1px solid rgba(228,248,247,.3);touch-action:none;cursor:grab}
-canvas:fullscreen{width:100vw;height:100vh;aspect-ratio:auto;object-fit:contain;border:0;background:#000}
-.bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;width:100%}
-.btn{background:transparent;border:1.5px solid rgba(228,248,247,.5);padding:5px 12px;font-size:14px}
+#studio{width:100%;height:100%;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) min(300px,34vw);grid-template-rows:minmax(0,1fr);gap:12px;padding:6px 0}
+.stage{min-height:0;display:grid;grid-template-rows:auto minmax(0,1fr);gap:8px}
+.tb{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.sep{width:1px;height:22px;background:rgba(228,248,247,.3);margin:0 4px}
+.btn{background:transparent;border:1.5px solid rgba(228,248,247,.5);padding:4px 11px;font-size:14px}
 .btn:disabled{opacity:.4;cursor:not-allowed}
 .btn.on{background:var(--paper);color:var(--ink)}
-#rb{background:var(--accent);border-color:var(--accent);color:var(--ink);font-weight:700;padding:6px 18px}
+#rb{background:var(--accent);border-color:var(--accent);color:var(--ink);font-weight:700;padding:4px 16px}
 #rb.rec{background:var(--rec);border-color:var(--rec)}
-#tm{font-variant-numeric:tabular-nums;min-width:4.5ch}
-#st{font-size:13px;font-style:italic;flex-basis:100%;text-align:center;min-height:1.2em;margin:0}
-#out{display:flex;align-items:center;gap:10px;font-size:13px}
-#out video{height:54px;border:1px solid rgba(228,248,247,.3)}
-#layers{overflow-y:auto;min-height:0;display:grid;gap:10px;align-content:start;padding-right:4px}
-.card{border:1px solid rgba(228,248,247,.28);background:rgba(9,64,75,.55);padding:6px 10px;display:grid;gap:4px;font-size:12px;cursor:pointer}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:2px 12px}
+#tm{font-variant-numeric:tabular-nums;font-size:14px;min-width:9ch}
+.cvw{container-type:size;display:grid;place-items:start center;min-height:0}
+canvas{width:min(100cqw,calc(100cqh*16/9));aspect-ratio:16/9;height:auto;background:#000;border:1px solid rgba(228,248,247,.3);touch-action:none}
+canvas:fullscreen{width:100vw;height:100vh;aspect-ratio:auto;object-fit:contain;border:0}
+#layers{overflow-y:auto;min-height:0;display:grid;gap:8px;align-content:start;padding-right:2px}
+.card{border:1px solid rgba(228,248,247,.28);background:rgba(9,64,75,.55);padding:8px 10px;display:grid;gap:6px;font-size:12px;cursor:pointer}
 .card.on{border-color:var(--accent)}
-.card header{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:space-between}
-.card h3{margin:0;font-size:16px}
-.card .ic{display:flex;flex-wrap:wrap;gap:4px}
-.card .ic button{background:transparent;border:1px solid rgba(228,248,247,.4);padding:2px 8px;font-size:12px}
-.card label{display:grid;gap:0;font-size:11px}
+.card h3{margin:0;font-size:15px}
+.ic{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.ic button{background:transparent;border:1px solid rgba(228,248,247,.4);padding:3px 2px;font-size:12px}
+.ic button:disabled{opacity:.35;cursor:not-allowed}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px}
+.card label{display:grid;font-size:11px}
 .card label.ck{display:flex;align-items:center;gap:6px;font-size:12px}
-input[type=range]{width:100%;accent-color:var(--accent)}
-.hint{margin:0;font-size:14px;font-style:italic;opacity:.8;padding:6px 2px}
+input[type=range]{width:100%;accent-color:var(--accent);margin:2px 0}
+.hint{margin:0;font-size:12px;font-style:italic;opacity:.75}
 @media (max-width:780px){
   #studio{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr)}
-  canvas{width:min(100%,calc((100dvh - var(--bh)*2)*.45*16/9))}
-  .cvw{flex:none}
+  .stage{grid-template-rows:auto auto}
+  .cvw{container-type:normal}
+  canvas{width:100%}
+}
+@media (max-width:700px){
+  #land{grid-template-columns:1fr;gap:clamp(8px,2vh,20px)}
+  .ctl{width:min(92vw,420px)}
+  h1{font-size:clamp(64px,20vw,120px)}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
@@ -88,44 +95,52 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 
 <main>
   <section id="land">
-    <p class="ro">ro ku . ga .</p>
+    <div class="ttl"><p class="ro">ro ku . ga .</p>
     <h1 lang="ja">録画</h1>
-    <p class="ro">re · kō · dā .</p>
-    <div class="drop" role="group" aria-label="Choose sources">
-      <b>Choose what to record</b>
-      <span>webcam, screen, or both</span>
-      <div class="chips">
-        <button class="chip" id="cCam" aria-pressed="false">Webcam</button>
-        <button class="chip" id="cScr" aria-pressed="false">Screen</button>
+    <p class="ro">re · kō · dā .</p></div>
+    <div class="ctl">
+      <div class="drop" role="group" aria-label="Choose sources">
+        <b>Choose what to record</b>
+        <span>webcam, screen, or both</span>
+        <div class="chips">
+          <button class="chip" id="cCam" aria-pressed="false">Webcam</button>
+          <button class="chip" id="cScr" aria-pressed="false">Screen</button>
+        </div>
       </div>
+      <button class="go" id="open" disabled>Open</button>
+      <p id="err" role="alert"></p>
     </div>
-    <button class="go" id="open" disabled>Open</button>
-    <p id="err" role="alert"></p>
   </section>
 
   <section id="studio" hidden>
     <div class="stage">
-      <div class="cvw"><canvas id="cv" width="1280" height="720" aria-label="Recording preview. Drag layers to move them, scroll to resize."></canvas></div>
-      <div class="bar">
+      <div class="tb">
         <button class="btn" id="rb" disabled>Record</button>
         <span id="tm">00:00</span>
+        <button class="btn" id="sv" hidden>Save</button>
+        <span class="sep"></span>
+        <button class="btn on" data-mode="move">Move / resize</button>
+        <button class="btn" data-mode="crop">Crop</button>
+        <button class="btn" data-mode="zoom">Zoom</button>
+        <button class="btn" id="zo" hidden aria-label="Zoom out">−</button>
+        <button class="btn" id="zi" hidden aria-label="Zoom in">+</button>
+        <span class="sep"></span>
         <button class="btn" id="aCam">Add webcam</button>
         <button class="btn" id="aScr">Add screen</button>
         <button class="btn" id="fs">Full screen</button>
-        <div id="out" hidden></div>
-        <p id="st" role="status">Drag a layer to move it. Scroll over it to resize.</p>
       </div>
+      <div class="cvw"><canvas id="cv" width="1280" height="720" aria-label="Recording preview"></canvas></div>
     </div>
     <aside id="layers" aria-label="Layers"></aside>
   </section>
 </main>
 
-<footer class="band"><p>Record your screen and webcam, right in your browser.</p></footer>
+<footer class="band"><p role="status">Record your screen and webcam, right in your browser.</p></footer>
 
 <script>
 const $=s=>document.querySelector(s), W=1280, H=720, cv=$('#cv'), c=cv.getContext('2d');
 const FILT='filter' in c, clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
-let layers=[], sel=null, ac, dst, rec, chunks=[], tick, t0, blob, uid=0, drag=null, outUrl;
+let layers=[], sel=null, ac, dst, rec, chunks=[], tick, t0, size=0, blob, outUrl, uid=0, drag=null, mode='move';
 
 /* torn edges */
 function torn(el,top){
@@ -140,9 +155,11 @@ torn($('#top'),true); torn($('footer'),false);
 const want={cam:false,scr:false};
 function chip(btn,k){btn.onclick=()=>{want[k]=!want[k];btn.setAttribute('aria-pressed',want[k]);$('#open').disabled=!(want.cam||want.scr)}}
 chip($('#cCam'),'cam'); chip($('#cScr'),'scr');
+const HINT={move:'Drag a layer to move it. Drag a corner or scroll to resize.',crop:'Drag any edge or corner to crop.',zoom:'Scroll or use + / − to zoom. Drag inside the box to reposition.'};
+const msg=t=>{if(document.body.classList.contains('studio'))$('footer p').textContent=t;else $('#err').textContent=t};
 $('#open').onclick=async()=>{
   document.body.classList.add('studio'); $('#land').hidden=true; $('#studio').hidden=false;
-  torn($('#top'),true); torn($('footer'),false);
+  torn($('#top'),true); torn($('footer'),false); render(); msg(HINT.move);
   if(want.scr) await add('scr'); if(want.cam) await add('cam');
 };
 $('#aCam').onclick=()=>add('cam'); $('#aScr').onclick=()=>add('scr');
@@ -151,7 +168,11 @@ function fs(){
   (cv.requestFullscreen?cv.requestFullscreen():Promise.reject()).catch(()=>msg('Full screen is blocked here. Open the page in its own tab.'));
 }
 $('#fs').onclick=fs; cv.addEventListener('dblclick',fs);
-const msg=t=>{$('#st').textContent=t; $('#err').textContent=t};
+document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{
+  mode=b.dataset.mode; document.querySelectorAll('[data-mode]').forEach(x=>x.classList.toggle('on',x===b));
+  $('#zi').hidden=$('#zo').hidden=mode!=='zoom'; msg(HINT[mode]);
+});
+$('#zi').onclick=()=>sel&&!sel.lock&&zoom(sel,.85); $('#zo').onclick=()=>sel&&!sel.lock&&zoom(sel,1/.85);
 
 /* sources */
 async function add(kind){
@@ -165,22 +186,29 @@ async function add(kind){
       catch(e){s=await navigator.mediaDevices.getUserMedia({video:v})}
     }else s=await navigator.mediaDevices.getDisplayMedia({video:{frameRate:30},audio:true});
     const v=document.createElement('video'); v.muted=true; v.playsInline=true; v.srcObject=s; await v.play();
-    const L={id:++uid,kind,name:kind==='cam'?'Webcam':'Screen',v,s,x:0,y:0,w:1,zoom:1,px:.5,py:.5,vol:100,mute:false,show:true,
+    const L={id:++uid,kind,name:kind==='cam'?'Webcam':'Screen',v,s,vol:100,mute:false,show:true,lock:false,
       retouch:kind==='cam',smooth:.5,bright:.3,warm:.3,mirror:kind==='cam'};
     if(s.getAudioTracks().length){
       L.g=ac.createGain(); L.src=ac.createMediaStreamSource(new MediaStream(s.getAudioTracks())); L.src.connect(L.g); L.g.connect(dst);
     }
     s.getVideoTracks()[0].addEventListener('ended',()=>remove(L));
     kind==='scr'?layers.unshift(L):layers.push(L);
-    if(layers.length===2) pip(layers.find(l=>l.kind==='cam'));
-    sel=L; render(); msg('Drag a layer to move it. Scroll over it to resize.');
+    fit(L); if(layers.length===2)layers.forEach(l=>l.kind==='cam'&&!l.lock&&fit(l));
+    sel=L; render(); msg(HINT[mode]);
   }catch(e){
     msg(e&&e.name==='NotAllowedError'?'Permission was denied. Allow access and try again, or open this page in its own tab.':`Couldn’t start the ${kind==='cam'?'webcam':'screen capture'}. ${e&&e.message||''}`);
   }
 }
-function pip(L){
-  if(!L)return; L.w=.26; const h=L.w*W*L.v.videoHeight/L.v.videoWidth;
-  L.x=W-L.w*W-28; L.y=H-h-28;
+/* geometry: box (x,y,w,h in canvas px) shows source window (sx,sy,sw,sh as 0-1 fractions) */
+function fit(L){
+  const vw=L.v.videoWidth,vh=L.v.videoHeight; L.sx=L.sy=0; L.sw=L.sh=1;
+  if(L.kind==='cam'&&layers.length>1){L.w=W*.26;L.h=L.w*vh/vw;L.x=W-L.w-28;L.y=H-L.h-28}
+  else{const k=Math.min(W/vw,H/vh);L.w=vw*k;L.h=vh*k;L.x=(W-L.w)/2;L.y=(H-L.h)/2}
+}
+function zoom(L,f,fx=.5,fy=.5){
+  const r=clamp(f,Math.max(.06/L.sw,.06/L.sh),Math.min(1/L.sw,1/L.sh)); if(L.mirror)fx=1-fx;
+  const nw=L.sw*r,nh=L.sh*r;
+  L.sx=clamp(L.sx+L.sw*fx-nw*fx,0,1-nw); L.sy=clamp(L.sy+L.sh*fy-nh*fy,0,1-nh); L.sw=nw; L.sh=nh;
 }
 function remove(L){
   L.s.getTracks().forEach(t=>t.stop()); try{L.src&&L.src.disconnect();L.g&&L.g.disconnect()}catch(e){}
@@ -190,25 +218,26 @@ const gain=L=>{if(L.g)L.g.gain.value=L.mute?0:L.vol/100};
 
 /* layer panel */
 const byId=id=>layers.find(l=>l.id==id);
-function sl(L,k,lab,min,max,step){return `<label>${lab}<input type="range" data-id="${L.id}" data-k="${k}" min="${min}" max="${max}" step="${step}" value="${L[k]}"></label>`}
-function ck(L,k,lab){return `<label class="ck"><input type="checkbox" data-id="${L.id}" data-k="${k}" ${L[k]?'checked':''}>${lab}</label>`}
+const sl=(L,k,lab,min,max,step)=>`<label>${lab}<input type="range" data-id="${L.id}" data-k="${k}" min="${min}" max="${max}" step="${step}" value="${L[k]}"></label>`;
+const ck=(L,k,lab)=>`<label class="ck"><input type="checkbox" data-id="${L.id}" data-k="${k}" ${L[k]?'checked':''}>${lab}</label>`;
 function render(){
-  $('#rb').disabled=!layers.length && !(rec&&rec.state==='recording');
+  $('#rb').disabled=!layers.length&&!(rec&&rec.state==='recording');
   $('#layers').innerHTML=layers.length?[...layers].reverse().map(L=>`
   <article class="card ${L===sel?'on':''}" data-id="${L.id}">
-    <header><h3>${L.name}</h3><div class="ic">
-      <button data-act="show">${L.show?'Hide':'Show'}</button>
-      ${L.g?`<button data-act="mute">${L.mute?'Unmute':'Mute'}</button>`:''}
-      <button data-act="up">Raise</button><button data-act="dn">Lower</button><button data-act="del">Remove</button></div></header>
-    ${L!==sel?'':`<div class="grid">${L.g?sl(L,'vol','Volume',0,150,1):''}${sl(L,'w','Size',.1,1.5,.01)}${sl(L,'zoom','Crop zoom',1,4,.01)}${sl(L,'px','Pan ↔',0,1,.01)}${sl(L,'py','Pan ↕',0,1,.01)}${L.kind==='cam'?ck(L,'mirror','Mirror')+ck(L,'retouch','Retouch')+(FILT?sl(L,'smooth','Smooth',0,1,.01)+sl(L,'bright','Brighten',0,1,.01)+sl(L,'warm','Warmth',0,1,.01):''):''}</div>`}
-  </article>`).join(''):'<p class="hint">No sources yet. Add a webcam or screen below the preview.</p>';
+    <h3>${L.name}${L.lock?' (locked)':''}</h3>
+    <div class="ic"><button data-act="show">${L.show?'Hide':'Show'}</button><button data-act="mute" ${L.g?'':'disabled'}>${L.mute?'Unmute':'Mute'}</button>
+      <button data-act="up">Raise</button><button data-act="dn">Lower</button>
+      <button data-act="lock">${L.lock?'Unlock':'Lock'}</button><button data-act="reset">Reset</button><button data-act="del">Delete</button></div>
+    ${L.g?sl(L,'vol','Volume',0,150,1):'<p class="hint">No audio from this source.</p>'}
+    ${L.kind==='cam'?`<div class="grid">${ck(L,'mirror','Mirror')}${ck(L,'retouch','Retouch')}${FILT?sl(L,'smooth','Smooth',0,1,.01)+sl(L,'bright','Brighten',0,1,.01)+sl(L,'warm','Warmth',0,1,.01):''}</div>`:''}
+  </article>`).join(''):'<p class="hint">No sources yet. Use Add webcam or Add screen.</p>';
 }
 $('#layers').addEventListener('input',e=>{
   const t=e.target,L=byId(t.dataset.id); if(!L||!t.dataset.k)return;
   L[t.dataset.k]=t.type==='checkbox'?t.checked:+t.value; if(t.dataset.k==='vol')gain(L);
 });
 $('#layers').addEventListener('click',e=>{
-  const b=e.target.closest('[data-act]'), card=e.target.closest('.card'); if(!card)return;
+  const b=e.target.closest('[data-act]'),card=e.target.closest('.card'); if(!card)return;
   const L=byId(card.dataset.id); if(!L)return;
   if(!b){if(sel!==L){sel=L;render()}return}
   const a=b.dataset.act,i=layers.indexOf(L);
@@ -216,25 +245,64 @@ $('#layers').addEventListener('click',e=>{
   if(a==='mute'){L.mute=!L.mute;gain(L)}
   if(a==='up'&&i<layers.length-1)[layers[i],layers[i+1]]=[layers[i+1],layers[i]];
   if(a==='dn'&&i>0)[layers[i],layers[i-1]]=[layers[i-1],layers[i]];
+  if(a==='lock')L.lock=!L.lock;
+  if(a==='reset')fit(L);
   if(a==='del')return remove(L);
   sel=L; render();
 });
 
-/* canvas interaction */
-const rectOf=L=>({x:L.x,y:L.y,w:L.w*W,h:L.w*W*L.v.videoHeight/L.v.videoWidth});
+/* direct manipulation on the preview */
+const HS=['nw','n','ne','e','se','s','sw','w'], CUR={nw:'nwse-resize',se:'nwse-resize',ne:'nesw-resize',sw:'nesw-resize',n:'ns-resize',s:'ns-resize',e:'ew-resize',w:'ew-resize'};
+const hlist=()=>mode==='crop'?HS:mode==='move'?['nw','ne','se','sw']:[];
+const hp=(L,h)=>({x:L.x+(h.includes('w')?0:h.includes('e')?L.w:L.w/2),y:L.y+(h.includes('n')?0:h.includes('s')?L.h:L.h/2)});
 const pt=e=>{const r=cv.getBoundingClientRect(),s=Math.min(r.width/W,r.height/H),ox=(r.width-W*s)/2,oy=(r.height-H*s)/2;return{x:(e.clientX-r.left-ox)/s,y:(e.clientY-r.top-oy)/s}};
-const hit=(p)=>[...layers].reverse().find(L=>{if(!L.show)return false;const r=rectOf(L);return p.x>=r.x&&p.x<=r.x+r.w&&p.y>=r.y&&p.y<=r.y+r.h});
+const inside=(L,p)=>p.x>=L.x&&p.x<=L.x+L.w&&p.y>=L.y&&p.y<=L.y+L.h;
+const hit=p=>[...layers].reverse().find(L=>L.show&&!L.lock&&inside(L,p));
+const hitH=p=>{if(!sel||sel.lock||!sel.show)return;return hlist().find(h=>{const d=hp(sel,h);return Math.abs(p.x-d.x)<=20&&Math.abs(p.y-d.y)<=20})};
+const snap=L=>({x:L.x,y:L.y,w:L.w,h:L.h,sx:L.sx,sy:L.sy,sw:L.sw,sh:L.sh});
 cv.addEventListener('pointerdown',e=>{
-  const p=pt(e),L=hit(p); if(!L)return;
-  drag={L,dx:p.x-L.x,dy:p.y-L.y}; cv.setPointerCapture(e.pointerId); cv.style.cursor='grabbing';
-  if(sel!==L){sel=L;render()}
+  const p=pt(e),h=hitH(p);
+  if(h)drag={t:'h',h,L:sel,p0:p,o:snap(sel)};
+  else{
+    const L=hit(p); if(!L)return; if(sel!==L){sel=L;render()}
+    drag={t:mode==='zoom'?'pan':'move',L,p0:p,o:snap(L)};
+  }
+  cv.setPointerCapture(e.pointerId);
 });
-cv.addEventListener('pointermove',e=>{if(!drag)return;const p=pt(e);drag.L.x=p.x-drag.dx;drag.L.y=p.y-drag.dy});
-['pointerup','pointercancel'].forEach(n=>cv.addEventListener(n,()=>{drag=null;cv.style.cursor='grab'}));
+cv.addEventListener('pointermove',e=>{
+  const p=pt(e);
+  if(!drag){const h=hitH(p);cv.style.cursor=h?CUR[h]:hit(p)?(mode==='zoom'?'grab':'move'):'default';return}
+  const{L,o,p0,h,t}=drag,dx=p.x-p0.x,dy=p.y-p0.y,vw=L.v.videoWidth,vh=L.v.videoHeight;
+  if(t==='move'){L.x=o.x+dx;L.y=o.y+dy}
+  else if(t==='pan'){
+    L.sx=clamp(o.sx-(L.mirror?-1:1)*dx*o.sw/o.w,0,1-L.sw); L.sy=clamp(o.sy-dy*o.sh/o.h,0,1-L.sh);
+  }else if(mode==='move'){
+    const sx=h.includes('e')?1:-1,sy=h.includes('s')?1:-1,ax=sx>0?o.x:o.x+o.w,ay=sy>0?o.y:o.y+o.h;
+    const nw=clamp((p.x-ax)*sx,40,W*2);
+    L.w=nw; L.h=o.h*nw/o.w; L.x=sx>0?ax:ax-nw; L.y=sy>0?ay:ay-L.h;
+  }else{
+    const k=o.w/(o.sw*vw),m=.05;
+    if(/[we]/.test(h)){
+      const left=h.includes('w'),d=dx/(k*vw)*(left?1:-1);
+      let nsw;
+      if(left!==L.mirror){L.sx=clamp(o.sx+d,0,o.sx+o.sw-m);nsw=o.sx+o.sw-L.sx}
+      else{L.sx=o.sx;nsw=clamp(o.sx+o.sw-d,o.sx+m,1)-o.sx}
+      L.sw=nsw; L.w=nsw*vw*k; L.x=left?o.x+o.w-L.w:o.x;
+    }
+    if(/[ns]/.test(h)){
+      const top=h.includes('n'),d=dy/(k*vh);
+      let nsh;
+      if(top){L.sy=clamp(o.sy+d,0,o.sy+o.sh-m);nsh=o.sy+o.sh-L.sy}
+      else{L.sy=o.sy;nsh=clamp(o.sy+o.sh+d,o.sy+m,1)-o.sy}
+      L.sh=nsh; L.h=nsh*vh*k; L.y=top?o.y+o.h-L.h:o.y;
+    }
+  }
+});
+['pointerup','pointercancel'].forEach(n=>cv.addEventListener(n,()=>{drag=null}));
 cv.addEventListener('wheel',e=>{
-  const L=hit(pt(e))||sel; if(!L)return; e.preventDefault();
-  L.w=clamp(L.w*(e.deltaY<0?1.05:.95),.1,1.5);
-  const i=document.querySelector(`[data-id="${L.id}"][data-k="w"]`); if(i)i.value=L.w;
+  const p=pt(e),L=hit(p); if(!L||mode==='crop')return; e.preventDefault();
+  if(mode==='zoom')zoom(L,e.deltaY<0?.9:1/.9,(p.x-L.x)/L.w,(p.y-L.y)/L.h);
+  else{const nw=clamp(L.w*(e.deltaY<0?1.05:.95),40,W*2),r=nw/L.w;L.x+=(L.w-nw)/2;L.y+=(L.h-L.h*r)/2;L.w=nw;L.h*=r}
 },{passive:false});
 
 /* compositing */
@@ -243,21 +311,22 @@ function draw(){
   let any=false;
   for(const L of layers){
     const v=L.v; if(!L.show||v.readyState<2||!v.videoWidth)continue; any=true;
-    const vw=v.videoWidth,vh=v.videoHeight,dw=L.w*W,dh=dw*vh/vw,sw=vw/L.zoom,sh=vh/L.zoom,sx=(vw-sw)*L.px,sy=(vh-sh)*L.py;
+    const vw=v.videoWidth,vh=v.videoHeight;
     c.save();
-    if(L.mirror){c.translate(L.x+dw,L.y);c.scale(-1,1)}else c.translate(L.x,L.y);
-    if(L.kind==='cam'&&c.roundRect&&L.w<.9){c.beginPath();c.roundRect(0,0,dw,dh,22);c.clip()}
-    const paint=()=>c.drawImage(v,sx,sy,sw,sh,0,0,dw,dh);
+    if(L.kind==='cam'&&c.roundRect&&L.w<W*.9){c.beginPath();c.roundRect(L.x,L.y,L.w,L.h,22);c.clip()}
+    if(L.mirror){c.translate(L.x+L.w,L.y);c.scale(-1,1)}else c.translate(L.x,L.y);
+    const paint=()=>c.drawImage(v,L.sx*vw,L.sy*vh,L.sw*vw,L.sh*vh,0,0,L.w,L.h);
     if(L.retouch&&FILT){
       const tone=`brightness(${1+L.bright*.25}) saturate(${1+L.warm*.35})`;
       c.filter=`${tone} contrast(${1-L.smooth*.06})`; paint();
-      if(L.smooth>0){c.globalAlpha=L.smooth*.65;c.filter=`blur(${Math.max(1.5,dw/110)}px) ${tone}`;paint()}
+      if(L.smooth>0){c.globalAlpha=L.smooth*.65;c.filter=`blur(${Math.max(1.5,L.w/110)}px) ${tone}`;paint()}
     }else paint();
     c.restore();
   }
   if(!any){c.fillStyle='#7ff0dc';c.font='italic 34px "Source Serif 4",serif';c.textAlign='center';c.fillText('Add a webcam or screen to begin',W/2,H/2)}
   if(sel&&sel.show&&!document.fullscreenElement&&!(rec&&rec.state==='recording')){
-    const r=rectOf(sel);c.setLineDash([12,8]);c.lineWidth=3;c.strokeStyle='#7ff0dc';c.strokeRect(r.x,r.y,r.w,r.h);c.setLineDash([]);
+    c.lineWidth=3;c.strokeStyle=sel.lock?'#e4f8f7':'#7ff0dc';c.setLineDash(sel.lock?[4,8]:[12,8]);c.strokeRect(sel.x,sel.y,sel.w,sel.h);c.setLineDash([]);
+    if(!sel.lock){c.fillStyle='#7ff0dc';for(const h of hlist()){const d=hp(sel,h);c.fillRect(d.x-8,d.y-8,16,16)}}
   }
 }
 (function loop(){draw();requestAnimationFrame(loop)})();
@@ -268,29 +337,28 @@ const fmt=s=>String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(
 $('#rb').onclick=()=>{rec&&rec.state==='recording'?rec.stop():start()};
 function start(){
   if(!layers.length||!window.MediaRecorder)return msg('Recording isn’t supported in this browser.');
-  if(outUrl)URL.revokeObjectURL(outUrl); $('#out').hidden=true;
+  if(outUrl)URL.revokeObjectURL(outUrl); $('#sv').hidden=true;
   const mime=['video/mp4;codecs=avc1.640028,mp4a.40.2','video/mp4;codecs=avc1,mp4a.40.2','video/mp4','video/webm;codecs=vp9,opus','video/webm'].find(m=>MediaRecorder.isTypeSupported(m));
   const tracks=[...cv.captureStream(30).getVideoTracks(),...(dst?dst.stream.getAudioTracks():[])];
-  chunks=[]; rec=new MediaRecorder(new MediaStream(tracks),{mimeType:mime,videoBitsPerSecond:6e6});
-  rec.ondataavailable=e=>e.data.size&&chunks.push(e.data);
+  chunks=[]; size=0; rec=new MediaRecorder(new MediaStream(tracks),{mimeType:mime,videoBitsPerSecond:6e6});
+  rec.ondataavailable=e=>{if(e.data.size){chunks.push(e.data);size+=e.data.size}};
   rec.onstop=()=>{
     clearInterval(tick); $('#rb').textContent='Record'; $('#rb').classList.remove('rec'); render();
     blob=new Blob(chunks,{type:rec.mimeType||mime}); outUrl=URL.createObjectURL(blob);
-    const o=$('#out'); o.hidden=false;
-    o.innerHTML=`<video src="${outUrl}" controls muted></video><button class="btn" id="sv">Save recording</button>`;
-    $('#sv').onclick=save; msg('Recording ready.');
+    $('#sv').textContent=`Save .${blob.type.includes('mp4')?'mp4':'webm'}`; $('#sv').hidden=false; msg('Recording ready. Press Save to download it.');
   };
-  rec.start(1000); t0=Date.now(); $('#rb').textContent='Stop'; $('#rb').classList.add('rec'); msg(mime.includes('mp4')?'Recording…':'Recording… (this browser can only save .webm)');
-  tick=setInterval(()=>$('#tm').textContent=fmt(Math.floor((Date.now()-t0)/1000)),250); $('#tm').textContent='00:00';
+  rec.start(1000); t0=Date.now(); $('#rb').textContent='Stop'; $('#rb').classList.add('rec');
+  msg(mime.includes('mp4')?'Recording…':'Recording… (this browser can only save .webm)');
+  tick=setInterval(()=>$('#tm').textContent=fmt(Math.floor((Date.now()-t0)/1000))+' · '+(size/1048576).toFixed(0)+' MB',500); $('#tm').textContent='00:00 · 0 MB';
 }
-async function save(){
+$('#sv').onclick=async()=>{
   const ext=blob.type.includes('mp4')?'mp4':'webm', name=`recording-${new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')}.${ext}`;
   try{
     const d=window.claude&&await claude.use('downloads');
     if(d){await d.save({filename:name,data:blob});return}
   }catch(e){if(e&&e.code==='declined')return}
   const a=document.createElement('a'); a.href=outUrl; a.download=name; a.click();
-}
+};
 </script>
 </body>
 </html>
