@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>re·kō·dā · Recorder</title>
+<title>録画 · re·kō·dā</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@900&family=Source+Serif+4:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
@@ -34,6 +34,7 @@ button,select{font:inherit;color:inherit;cursor:pointer}
 .stage{min-height:0;display:grid;grid-template-rows:auto minmax(0,1fr);gap:8px}
 .tb{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
 .tb .fl{flex:1}
+.recw{display:contents}
 .sep{width:1px;height:22px;background:rgba(228,248,247,.3);margin:0 4px}
 .brand{font:900 24px/1 "Noto Serif JP",serif;margin-right:4px;white-space:nowrap}
 .brand .rom{font:italic 400 15px "Source Serif 4",serif;letter-spacing:.2em;color:var(--accent)}
@@ -80,15 +81,17 @@ input[type=range]{width:100%;accent-color:var(--accent);margin:2px 0}
   <section id="studio">
     <div class="stage">
       <div class="tb">
-        <button class="btn" id="rb" disabled>Record</button>
+        <span class="recw" id="recw"><button class="btn" id="rb" disabled>Record</button>
         <span id="tm">00:00</span>
-        <button class="btn" id="sv" hidden>Save</button>
+        <button class="btn" id="sv" hidden>Save</button></span>
+        <button class="btn" id="pop" title="Float the record button over other windows">Pop out</button>
         <span class="sep"></span>
         <button class="btn on" data-mode="move">Move / resize</button>
         <button class="btn" data-mode="crop">Crop</button>
         <button class="btn" data-mode="zoom">Zoom</button>
         <button class="btn" id="zo" hidden aria-label="Zoom out">−</button>
         <button class="btn" id="zi" hidden aria-label="Zoom in">+</button>
+        <button class="btn" id="sq" hidden title="Make the selected layer square">Square</button>
         <span class="sep"></span>
         <button class="btn" id="aCam">Add webcam</button>
         <button class="btn" id="aScr">Add screen</button>
@@ -103,12 +106,13 @@ input[type=range]{width:100%;accent-color:var(--accent);margin:2px 0}
 <footer class="band"><p role="status">Click the preview to share a screen.</p></footer>
 
 <script>
-const $=s=>document.querySelector(s), cv=$('#cv'), c=cv.getContext('2d');
+var pipw=null;
+const $=s=>document.querySelector(s)||(pipw&&pipw.document.querySelector(s)), cv=$('#cv'), c=cv.getContext('2d');
 const FILT='filter' in c, clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
 let W=1920,H=1080,Q=1080,layers=[],sel=null,ac,dst,rec,chunks=[],tick,t0,size=0,blob,outUrl,uid=0,drag=null,dnd=null,busy=false,mode='move';
 const U=()=>W/1280;
 const msg=t=>{$('footer p').textContent=t};
-const HINT={move:'Resize: drag a corner or scroll over the layer. Drag the layer to move it.',crop:'Crop: drag any edge or corner.',zoom:'Zoom: scroll or use + / −. Drag inside the box to reposition.'};
+const HINT={move:'Drag a corner or edge to scale (it clicks into place at the frame edge). Drag to move, hold Shift for straight lines.',crop:'Crop: drag any edge or corner, or press Square.',zoom:'Zoom: scroll or use + / −. Drag inside the box to reposition.'};
 
 /* torn edges */
 function torn(el,top){
@@ -135,7 +139,7 @@ function fs(){
 $('#fs').onclick=fs; cv.addEventListener('dblclick',()=>layers.length&&fs());
 document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{
   mode=b.dataset.mode; document.querySelectorAll('[data-mode]').forEach(x=>x.classList.toggle('on',x===b));
-  $('#zi').hidden=$('#zo').hidden=mode!=='zoom'; msg(HINT[mode]);
+  $('#zi').hidden=$('#zo').hidden=mode!=='zoom'; $('#sq').hidden=mode!=='crop'; msg(HINT[mode]);
 });
 $('#zi').onclick=()=>sel&&!sel.lock&&zoom(sel,.85); $('#zo').onclick=()=>sel&&!sel.lock&&zoom(sel,1/.85);
 
@@ -198,7 +202,7 @@ function render(){
     <div class="hd"><h3>${L.name}${L.lock?' (locked)':''}</h3></div>
     <div class="ic">${bt('show',L.show?'Hide':'Show')}${bt('mute',L.mute?'Unmute':'Mute',!L.g)}${bt('up','Raise')}${bt('dn','Lower')}${bt('lock',L.lock?'Unlock':'Lock')}${bt('reset','Reset')}${bt('del','Delete')}</div>
     ${L.g?sl(L,'vol','Volume',0,150,1):'<p class="hint">No audio from this source.</p>'}
-    ${L.kind==='cam'?`<div class="grid">${ck(L,'mirror','Mirror')}${ck(L,'retouch','Retouch')}${FILT?sl(L,'smooth','Smooth',0,1,.01)+sl(L,'bright','Brighten',0,1,.01)+sl(L,'warm','Warmth',0,1,.01):''}</div>`:''}
+    ${L.kind==='cam'?`<div class="grid">${ck(L,'mirror','Mirror')}${ck(L,'retouch','Retouch')}${(FILT||GL)?sl(L,'smooth','Smooth',0,1,.01)+sl(L,'bright','Brighten',0,1,.01)+sl(L,'warm','Warmth',0,1,.01):''}</div>`:''}
   </article>`).join(''):'<p class="hint">No sources yet. Click the preview or use Add screen / Add webcam.</p>';
 }
 const P=$('#layers');
@@ -235,12 +239,39 @@ P.addEventListener('dragend',()=>{dnd=null;render()});
 
 /* direct manipulation on the preview */
 const HS=['nw','n','ne','e','se','s','sw','w'], CUR={nw:'nwse-resize',se:'nwse-resize',ne:'nesw-resize',sw:'nesw-resize',n:'ns-resize',s:'ns-resize',e:'ew-resize',w:'ew-resize'};
-const hlist=()=>mode==='crop'?HS:mode==='move'?['nw','ne','se','sw']:[];
+const hlist=()=>mode==='zoom'?[]:HS;
 const hp=(L,h)=>({x:L.x+(h.includes('w')?0:h.includes('e')?L.w:L.w/2),y:L.y+(h.includes('n')?0:h.includes('s')?L.h:L.h/2)});
 const pt=e=>{const r=cv.getBoundingClientRect(),s=Math.min(r.width/W,r.height/H),ox=(r.width-W*s)/2,oy=(r.height-H*s)/2;return{x:(e.clientX-r.left-ox)/s,y:(e.clientY-r.top-oy)/s}};
 const inside=(L,p)=>p.x>=L.x&&p.x<=L.x+L.w&&p.y>=L.y&&p.y<=L.y+L.h;
 const hit=p=>[...layers].reverse().find(L=>L.show&&!L.lock&&inside(L,p));
-const hitH=p=>{if(!sel||sel.lock||!sel.show)return;return hlist(sel).find(h=>{const d=hp(sel,h);return Math.abs(p.x-d.x)<=20*U()&&Math.abs(p.y-d.y)<=20*U()})};
+const hitH=p=>{
+  if(!sel||sel.lock||!sel.show||mode==='zoom')return; const L=sel,t=20*U();
+  const c=['nw','ne','se','sw'].find(h=>{const d=hp(L,h);return Math.abs(p.x-d.x)<=t&&Math.abs(p.y-d.y)<=t}); if(c)return c;
+  const ix=p.x>=L.x-t&&p.x<=L.x+L.w+t,iy=p.y>=L.y-t&&p.y<=L.y+L.h+t;
+  if(iy&&Math.abs(p.x-L.x)<=t)return'w'; if(iy&&Math.abs(p.x-L.x-L.w)<=t)return'e';
+  if(ix&&Math.abs(p.y-L.y)<=t)return'n'; if(ix&&Math.abs(p.y-L.y-L.h)<=t)return's';
+};
+const stickBox=(p,len,max)=>{const th=16*U();for(const t of[0,max-len,(max-len)/2])if(Math.abs(p-t)<th)return t;return p};
+function coverFit(L,o){
+  const vw=L.v.videoWidth,vh=L.v.videoHeight,rs=vw/vh,a=L.w/L.h; let nsw=1,nsh=1; if(a>=rs)nsh=rs/a; else nsw=a/rs;
+  L.sx=clamp(o.sx+o.sw/2-nsw/2,0,1-nsw); L.sy=clamp(o.sy+o.sh/2-nsh/2,0,1-nsh); L.sw=nsw; L.sh=nsh;
+}
+$('#sq').onclick=()=>{
+  const L=sel; if(!L||L.lock)return; const o=snap(L),n=Math.min(L.w,L.h),cx=L.x+L.w/2,cy=L.y+L.h/2;
+  L.w=L.h=n; L.x=cx-n/2; L.y=cy-n/2; coverFit(L,o);
+};
+$('#pop').onclick=async()=>{
+  if(pipw){pipw.close();return}
+  if(!window.documentPictureInPicture)return msg('Pop-out needs Chrome or Edge 116+ on desktop.');
+  try{
+    const w=await documentPictureInPicture.requestWindow({width:260,height:90}),d=w.document,r=$('#recw');
+    d.head.appendChild(document.querySelector('style').cloneNode(true));
+    d.body.style.cssText='display:flex;align-items:center;justify-content:center;height:100%;margin:0;padding:0;overflow:hidden';
+    r.style.cssText='display:flex;align-items:center;gap:10px'; d.body.append(r); pipw=w;
+    $('#pop').textContent='Pop in'; msg('Record button is floating. Switch to the window you want to record.');
+    w.addEventListener('pagehide',()=>{pipw=null;r.style.cssText='';$('.tb').prepend(r);$('#pop').textContent='Pop out'});
+  }catch(e){msg('Couldn’t open the pop-out. '+(e&&e.message||''))}
+};
 const snap=L=>({x:L.x,y:L.y,w:L.w,h:L.h,sx:L.sx,sy:L.sy,sw:L.sw,sh:L.sh});
 cv.addEventListener('pointerdown',e=>{
   if(!layers.length)return add('scr');
@@ -256,12 +287,23 @@ cv.addEventListener('pointermove',e=>{
   const p=pt(e);
   if(!drag){const h=hitH(p),L=hit(p);cv.style.cursor=!layers.length?'pointer':h?CUR[h]:L?(mode==='zoom'?'grab':'move'):'default';return}
   const{L,o,p0,h,t}=drag,dx=p.x-p0.x,dy=p.y-p0.y,vw=L.v.videoWidth,vh=L.v.videoHeight;
-  if(t==='move'){L.x=o.x+dx;L.y=o.y+dy}
+  if(t==='move'){
+    if(e.shiftKey){if(!drag.ax&&Math.hypot(dx,dy)>8*U())drag.ax=Math.abs(dx)>=Math.abs(dy)?'x':'y'}else drag.ax=null;
+    const lx=e.shiftKey&&drag.ax!=='x',ly=e.shiftKey&&drag.ax!=='y';
+    L.x=lx?o.x:stickBox(o.x+dx,L.w,W); L.y=ly?o.y:stickBox(o.y+dy,L.h,H);
+  }
   else if(t==='pan'){
     L.sx=clamp(o.sx-(L.mirror?-1:1)*dx*o.sw/o.w,0,1-L.sw); L.sy=clamp(o.sy-dy*o.sh/o.h,0,1-L.sh);
+  }else if(mode==='move'&&h.length===1){
+    const th=16*U(),ar=o.w/o.h,hz=h==='w'||h==='e',sg=(h==='e'||h==='s')?1:-1;
+    const edge=hz?(sg>0?o.x+o.w:o.x):(sg>0?o.y+o.h:o.y),anc=hz?(sg>0?o.x:o.x+o.w):(sg>0?o.y:o.y+o.h),lim=sg>0?(hz?W:H):0;
+    let pos=edge+(hz?dx:dy); if(Math.abs(pos-lim)<th)pos=lim;
+    const len=clamp((pos-anc)*sg,40*U(),W*2),nw=hz?len:len*ar,nh=hz?len/ar:len;
+    L.w=nw;L.h=nh;
+    if(hz){L.x=sg>0?anc:anc-nw;L.y=o.y+(o.h-nh)/2}else{L.y=sg>0?anc:anc-nh;L.x=o.x+(o.w-nw)/2}
   }else if(mode==='move'){
     const sx=h.includes('e')?1:-1,sy=h.includes('s')?1:-1,ax=sx>0?o.x:o.x+o.w,ay=sy>0?o.y:o.y+o.h;
-    const nw=clamp((p.x-ax)*sx,40*U(),W*2);
+    let nw=clamp((p.x-ax)*sx,40*U(),W*2); const tx=sx>0?W:0; if(Math.abs(ax+sx*nw-tx)<16*U())nw=Math.abs(tx-ax);
     L.w=nw; L.h=o.h*nw/o.w; L.x=sx>0?ax:ax-nw; L.y=sy>0?ay:ay-L.h;
   }else{
     const k=o.w/(o.sw*vw),m=.05;
@@ -288,6 +330,58 @@ cv.addEventListener('wheel',e=>{
   else{const nw=clamp(L.w*(e.deltaY<0?1.05:.95),40*U(),W*2),r=nw/L.w;L.x+=(L.w-nw)/2;L.y+=(L.h-L.h*r)/2;L.w=nw;L.h*=r}
 },{passive:false});
 
+/* GPU retouch: one-pass edge-preserving smooth + tone, falls back to canvas filters */
+const glc=document.createElement('canvas'); let GL=false,gl,gtex,GU={};
+try{
+  gl=glc.getContext('webgl',{alpha:false,antialias:false,depth:false,stencil:false});
+  const mk=(t,src)=>{const o=gl.createShader(t);gl.shaderSource(o,src);gl.compileShader(o);if(!gl.getShaderParameter(o,gl.COMPILE_STATUS))throw gl.getShaderInfoLog(o);return o};
+  const pr=gl.createProgram();
+  gl.attachShader(pr,mk(gl.VERTEX_SHADER,'attribute vec2 a;varying vec2 uv;void main(){uv=a*.5+.5;gl_Position=vec4(a,0.,1.);}'));
+  gl.attachShader(pr,mk(gl.FRAGMENT_SHADER,`
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+uniform sampler2D t;uniform vec4 win;uniform vec2 px;uniform float sm,br,wm;varying vec2 uv;
+void main(){
+  vec2 p=vec2(win.x+uv.x*win.z,win.y+(1.-uv.y)*win.w);
+  vec3 c=texture2D(t,p).rgb,sum=c;float ws=1.;
+  float k=(win.z/px.x)*.003*(.6+sm*1.6);
+  for(int i=-2;i<=2;i++)for(int j=-2;j<=2;j++){
+    if(i==0&&j==0)continue;
+    vec2 o=vec2(float(i),float(j));vec3 s=texture2D(t,p+o*px*k).rgb,d=s-c;
+    float w=exp(-dot(o,o)*.18-dot(d,d)*30.);sum+=s*w;ws+=w;
+  }
+  c=mix(c,sum/ws,sm);
+  c*=1.+br*.25;
+  c=mix(vec3(dot(c,vec3(.299,.587,.114))),c,1.+wm*.3);
+  c.r*=1.+wm*.05;c.b*=1.-wm*.07;
+  c=(c-.5)*(1.-sm*.04)+.5;
+  gl_FragColor=vec4(clamp(c,0.,1.),1.);
+}`));
+  gl.linkProgram(pr); if(!gl.getProgramParameter(pr,gl.LINK_STATUS))throw gl.getProgramInfoLog(pr);
+  gl.useProgram(pr);
+  const buf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
+  const a=gl.getAttribLocation(pr,'a');gl.enableVertexAttribArray(a);gl.vertexAttribPointer(a,2,gl.FLOAT,false,0,0);
+  gtex=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,gtex);
+  [[gl.TEXTURE_MIN_FILTER,gl.LINEAR],[gl.TEXTURE_MAG_FILTER,gl.LINEAR],[gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE],[gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE]].forEach(([k,v])=>gl.texParameteri(gl.TEXTURE_2D,k,v));
+  ['win','px','sm','br','wm'].forEach(n=>GU[n]=gl.getUniformLocation(pr,n));
+  glc.addEventListener('webglcontextlost',e=>{e.preventDefault();GL=false});
+  GL=true;
+}catch(e){GL=false;console.warn('WebGL retouch unavailable, using canvas filters',e)}
+function glFrame(L){
+  if(!GL)return false;
+  try{
+    const v=L.v,w=clamp(Math.round(L.w),2,1920),h=clamp(Math.round(L.h),2,1920);
+    if(glc.width!==w||glc.height!==h){glc.width=w;glc.height=h;gl.viewport(0,0,w,h)}
+    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,v);
+    gl.uniform4f(GU.win,L.sx,L.sy,L.sw,L.sh);gl.uniform2f(GU.px,1/v.videoWidth,1/v.videoHeight);
+    gl.uniform1f(GU.sm,L.smooth);gl.uniform1f(GU.br,L.bright);gl.uniform1f(GU.wm,L.warm);
+    gl.drawArrays(gl.TRIANGLE_STRIP,0,4);return true;
+  }catch(e){GL=false;return false}
+}
+
 /* compositing */
 function draw(){
   const u=U(); c.filter='none'; c.globalAlpha=1; c.fillStyle='#000'; c.fillRect(0,0,W,H);
@@ -299,7 +393,8 @@ function draw(){
     if(L.kind==='cam'&&c.roundRect&&L.w<W*.9){c.beginPath();c.roundRect(L.x,L.y,L.w,L.h,22*u);c.clip()}
     if(L.mirror){c.translate(L.x+L.w,L.y);c.scale(-1,1)}else c.translate(L.x,L.y);
     const paint=()=>c.drawImage(v,L.sx*vw,L.sy*vh,L.sw*vw,L.sh*vh,0,0,L.w,L.h);
-    if(L.retouch&&FILT){
+    if(L.retouch&&glFrame(L))c.drawImage(glc,0,0,glc.width,glc.height,0,0,L.w,L.h);
+    else if(L.retouch&&FILT){
       const tone=`brightness(${1+L.bright*.25}) saturate(${1+L.warm*.35})`;
       c.filter=`${tone} contrast(${1-L.smooth*.06})`; paint();
       if(L.smooth>0){c.globalAlpha=L.smooth*.65;c.filter=`blur(${Math.max(1.5,L.w/110)}px) ${tone}`;paint()}
